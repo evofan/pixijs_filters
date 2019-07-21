@@ -19,8 +19,20 @@ app.stage.interactive = true;
 app.ticker.remove(app.render, app);
 const fpsDelta = 60 / APP_FPS;
 
+let app2 = new PIXI.Application({
+	width: 720,
+	height: 384
+});
+let canvas2 = document.getElementById("canvas2");
+canvas2.appendChild(app2.view);
+app2.renderer.backgroundColor = 0x3366cc;
+app2.stage.interactive = true;
+
 let bg;
+let bg_fish
 let shockwaveFilter;
+let blurFilter;
+
 let elapsedTime = 0;
 let isPlaying = false;
 
@@ -41,8 +53,12 @@ app.stage.addChild(container);
 
 // asset property
 const ASSET_BG = "images/pic_water.jpg";
+const ASSET_FISH = "images/pic_bg_fish.jpg";
 
-PIXI.loader.add("bg_data", ASSET_BG).load(onAssetsLoaded);
+PIXI.loader
+	.add("bg_data", ASSET_BG)
+	.add("bg_fish", ASSET_FISH)
+	.load(onAssetsLoaded);
 
 /**
  * Asset load Complete
@@ -78,6 +94,7 @@ function onAssetsLoaded(loader, res) {
 	text.x = 230;
 	text.y = 30;
 
+	// Shokwave
 	shockwaveFilter = new PIXI.filters.ShockwaveFilter([WIDTH / 2, HEIGHT / 2], {
 		amplitude: 20
 	});
@@ -89,6 +106,35 @@ function onAssetsLoaded(loader, res) {
 		repeat: -1,
 		repeatDelay: 1
 	});
+
+	// Blur
+	bg_fish_org = new PIXI.Sprite(res.bg_fish.texture);
+	app2.stage.addChild(bg_fish_org);
+	bg_fish_org.x = 0;
+	bg_fish_org.y = 0;
+
+	bg_fish = new PIXI.Sprite(res.bg_fish.texture);
+	app2.stage.addChild(bg_fish);
+	bg_fish.x = 360;
+	bg_fish.y = 0;
+	blurFilter = new PIXI.filters.BlurFilter();
+	blurFilter.blur = 8; // default = 2;
+	bg_fish.filters = [blurFilter];
+
+	// Text Blur
+	let text2 = new PIXI.Text("BlurFilter", {
+		fontFamily: "Arial",
+		fontSize: 30,
+		fill: 0xffffff,
+		align: "center",
+		fontWeight: "bold",
+		dropShadow: true,
+		dropShadowColor: "#000000",
+		trim: true
+	});
+	app2.stage.addChild(text2);
+	text2.x = 300;
+	text2.y = 30;
 
 	let ticker = PIXI.ticker.shared;
 	ticker.autoStart = false;
