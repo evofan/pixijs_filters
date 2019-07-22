@@ -9,8 +9,8 @@ document.body.appendChild(stats.dom);
 
 // init
 let app = new PIXI.Application({
-	width: WIDTH,
-	height: HEIGHT
+  width: WIDTH,
+  height: HEIGHT
 });
 let canvas = document.getElementById("canvas");
 canvas.appendChild(app.view);
@@ -20,18 +20,52 @@ app.ticker.remove(app.render, app);
 const fpsDelta = 60 / APP_FPS;
 
 let app2 = new PIXI.Application({
-	width: 720,
-	height: 384
+  width: 720,
+  height: 384
 });
 let canvas2 = document.getElementById("canvas2");
 canvas2.appendChild(app2.view);
 app2.renderer.backgroundColor = 0x3366cc;
 app2.stage.interactive = true;
 
+let app3 = new PIXI.Application({
+  width: 720,
+  height: 384
+});
+let canvas3 = document.getElementById("canvas3");
+canvas3.appendChild(app3.view);
+app3.renderer.backgroundColor = 0xcc9966;
+app3.stage.interactive = true;
+
+let app4 = new PIXI.Application({
+  width: 720,
+  height: 384
+});
+let canvas4 = document.getElementById("canvas4");
+canvas4.appendChild(app4.view);
+app4.renderer.backgroundColor = 0x000000;
+app4.stage.interactive = true;
+
+let app5 = new PIXI.Application({
+  width: 720,
+  height: 384
+});
+let canvas5 = document.getElementById("canvas5");
+canvas5.appendChild(app5.view);
+app5.renderer.backgroundColor = 0xff9966;
+app5.stage.interactive = true;
+
 let bg;
-let bg_fish
+let bg_fish, bg_fish_org;
+let bg_leaf, bg_leaf_org;
+let bg_space, bg_space_org;
+let bg_wood, bg_wood_org;
+
 let shockwaveFilter;
 let blurFilter;
+let pixelateFilter;
+let zoomBlurFilter;
+let dotFilter;
 
 let elapsedTime = 0;
 let isPlaying = false;
@@ -54,11 +88,17 @@ app.stage.addChild(container);
 // asset property
 const ASSET_BG = "images/pic_water.jpg";
 const ASSET_FISH = "images/pic_bg_fish.jpg";
+const ASSET_LEAF = "images/pic_bg_leaf.jpg";
+const ASSET_SPACE = "images/pic_bg_space.jpg";
+const ASSET_WOOD = "images/pic_bg_wood.jpg";
 
 PIXI.loader
-	.add("bg_data", ASSET_BG)
-	.add("bg_fish", ASSET_FISH)
-	.load(onAssetsLoaded);
+  .add("bg_data", ASSET_BG)
+  .add("bg_fish", ASSET_FISH)
+  .add("bg_leaf", ASSET_LEAF)
+  .add("bg_space", ASSET_SPACE)
+  .add("bg_wood", ASSET_WOOD)
+  .load(onAssetsLoaded);
 
 /**
  * Asset load Complete
@@ -66,81 +106,176 @@ PIXI.loader
  * @param { object } res asset data
  */
 function onAssetsLoaded(loader, res) {
-	// BG
-	bg = new PIXI.Sprite(res.bg_data.texture);
-	container_bg.addChild(bg);
-	bg.x = 0;
-	bg.y = 0;
-	bg.interactive = true;
-	bg.on("tap", (event) => {
-		console.log("onTap"); // Desktop(Touch)
-	});
-	bg.on("click", (event) => {
-		console.log("click"); // Desktop
-	});
+  // BG
+  bg = new PIXI.Sprite(res.bg_data.texture);
+  container_bg.addChild(bg);
+  bg.x = 0;
+  bg.y = 0;
+  bg.interactive = true;
+  bg.on("tap", event => {
+    console.log("onTap"); // Desktop(Touch)
+  });
+  bg.on("click", event => {
+    console.log("click"); // Desktop
+  });
 
-	// Text
-	let text = new PIXI.Text("ShockwaveFilter", {
-		fontFamily: "Arial",
-		fontSize: 30,
-		fill: 0xffffff,
-		align: "center",
-		fontWeight: "bold",
-		dropShadow: true,
-		dropShadowColor: "#000000",
-		trim: true
-	});
-	container.addChild(text);
-	text.x = 230;
-	text.y = 30;
+  // Filter //
 
-	// Shokwave
-	shockwaveFilter = new PIXI.filters.ShockwaveFilter([WIDTH / 2, HEIGHT / 2], {
-		amplitude: 20
-	});
-	bg.filters = [shockwaveFilter];
+  // ShokwaveFilter
+  shockwaveFilter = new PIXI.filters.ShockwaveFilter([WIDTH / 2, HEIGHT / 2], {
+    amplitude: 20
+  });
+  bg.filters = [shockwaveFilter];
 
-	TweenMax.to(shockwaveFilter, 2, {
-		time: 2,
-		ease: Linear.easeNone,
-		repeat: -1,
-		repeatDelay: 1
-	});
+  TweenMax.to(shockwaveFilter, 2, {
+    time: 2,
+    ease: Linear.easeNone,
+    repeat: -1,
+    repeatDelay: 1
+  });
 
-	// Blur
-	bg_fish_org = new PIXI.Sprite(res.bg_fish.texture);
-	app2.stage.addChild(bg_fish_org);
-	bg_fish_org.x = 0;
-	bg_fish_org.y = 0;
+  // Text ShokwaveFilter
+  let text = new PIXI.Text("ShockwaveFilter", {
+    fontFamily: "Arial",
+    fontSize: 30,
+    fill: 0xffffff,
+    align: "center",
+    fontWeight: "bold",
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    trim: true
+  });
+  container.addChild(text);
+  text.x = 230;
+  text.y = 30;
 
-	bg_fish = new PIXI.Sprite(res.bg_fish.texture);
-	app2.stage.addChild(bg_fish);
-	bg_fish.x = 360;
-	bg_fish.y = 0;
-	blurFilter = new PIXI.filters.BlurFilter();
-	blurFilter.blur = 8; // default = 2;
-	bg_fish.filters = [blurFilter];
+  // BlurFilter
+  bg_fish_org = new PIXI.Sprite(res.bg_fish.texture);
+  app2.stage.addChild(bg_fish_org);
+  bg_fish_org.x = 0;
+  bg_fish_org.y = 0;
 
-	// Text Blur
-	let text2 = new PIXI.Text("BlurFilter", {
-		fontFamily: "Arial",
-		fontSize: 30,
-		fill: 0xffffff,
-		align: "center",
-		fontWeight: "bold",
-		dropShadow: true,
-		dropShadowColor: "#000000",
-		trim: true
-	});
-	app2.stage.addChild(text2);
-	text2.x = 300;
-	text2.y = 30;
+  bg_fish = new PIXI.Sprite(res.bg_fish.texture);
+  app2.stage.addChild(bg_fish);
+  bg_fish.x = 360;
+  bg_fish.y = 0;
+  blurFilter = new PIXI.filters.BlurFilter();
+  blurFilter.blur = 8; // default = 2;
+  bg_fish.filters = [blurFilter];
 
-	let ticker = PIXI.ticker.shared;
-	ticker.autoStart = false;
-	ticker.stop();
-	PIXI.settings.TARGET_FPMS = 0.06;
-	app.ticker.add(tick);
+  // Text BlurFilter
+  let text2 = new PIXI.Text("BlurFilter", {
+    fontFamily: "Arial",
+    fontSize: 30,
+    fill: 0xffffff,
+    align: "center",
+    fontWeight: "bold",
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    trim: true
+  });
+  app2.stage.addChild(text2);
+  text2.x = 300;
+  text2.y = 30;
+
+  // PixelateFilter
+  bg_leaf_org = new PIXI.Sprite(res.bg_leaf.texture);
+  app3.stage.addChild(bg_leaf_org);
+  bg_leaf_org.x = 0;
+  bg_leaf_org.y = 0;
+
+  bg_leaf = new PIXI.Sprite(res.bg_leaf.texture);
+  app3.stage.addChild(bg_leaf);
+  bg_leaf.x = 360;
+  bg_leaf.y = 0;
+  pixelateFilter = new PIXI.filters.PixelateFilter();
+  pixelateFilter.size = 20; // default: 10
+  bg_leaf.filters = [pixelateFilter];
+
+  // Text PixelateFilter
+  let text3 = new PIXI.Text("PixelateFilter", {
+    fontFamily: "Arial",
+    fontSize: 30,
+    fill: 0xffffff,
+    align: "center",
+    fontWeight: "bold",
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    trim: true
+  });
+  app3.stage.addChild(text3);
+  text3.x = 275;
+  text3.y = 30;
+
+  // ZoomBlur
+  bg_space_org = new PIXI.Sprite(res.bg_space.texture);
+  app4.stage.addChild(bg_space_org);
+  bg_space_org.x = 0;
+  bg_space_org.y = 0;
+
+  bg_space = new PIXI.Sprite(res.bg_space.texture);
+  app4.stage.addChild(bg_space);
+  bg_space.x = 360;
+  bg_space.y = 0;
+  zoomBlurFilter = new PIXI.filters.ZoomBlurFilter();
+  zoomBlurFilter.center = [180, 180];
+  zoomBlurFilter.strength = 0.2;
+  zoomBlurFilter.innerRadius = 20;
+  zoomBlurFilter.radius = -1;
+  bg_space.filters = [zoomBlurFilter];
+
+  // Text ZoomBlurFilter
+  let text4 = new PIXI.Text("ZoomBlurFilter", {
+    fontFamily: "Arial",
+    fontSize: 30,
+    fill: 0xffffff,
+    align: "center",
+    fontWeight: "bold",
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    trim: true
+  });
+  app4.stage.addChild(text4);
+  text4.x = 265;
+  text4.y = 30;
+
+  // DotFilter
+  bg_wood_org = new PIXI.Sprite(res.bg_wood.texture);
+  app5.stage.addChild(bg_wood_org);
+  bg_wood_org.x = 0;
+  bg_wood_org.y = 0;
+
+  bg_wood = new PIXI.Sprite(res.bg_wood.texture);
+  app5.stage.addChild(bg_wood);
+  bg_wood.x = 360;
+  bg_wood.y = 0;
+
+  dotFilter = new PIXI.filters.DotFilter();
+  dotFilter.scale = 2;
+  dotFilter.angle = 10;
+  bg_wood.filters = [dotFilter];
+
+  // Text DotFilter
+  let text5 = new PIXI.Text("DotFilter", {
+    fontFamily: "Arial",
+    fontSize: 30,
+    fill: 0xffffff,
+    align: "center",
+    fontWeight: "bold",
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    trim: true
+  });
+  app5.stage.addChild(text5);
+  text5.x = 305;
+  text5.y = 30;
+
+  // ticker
+  let ticker = PIXI.ticker.shared;
+  ticker.autoStart = false;
+  ticker.stop();
+  PIXI.settings.TARGET_FPMS = 0.06;
+  app.ticker.add(tick);
 }
 
 /**
@@ -148,27 +283,27 @@ function onAssetsLoaded(loader, res) {
  * @param { number } delta time
  */
 function tick(delta) {
-	elapsedTime += delta;
+  elapsedTime += delta;
 
-	if (elapsedTime >= fpsDelta) {
-		//enough time passed, update app
-		update(elapsedTime);
-		//reset
-		elapsedTime = 0;
-	}
+  if (elapsedTime >= fpsDelta) {
+    // enough time passed, update app
+    update(elapsedTime);
+    // reset
+    elapsedTime = 0;
+  }
 }
 
 /**
- * app rendering
- * @param { number } delta  time
+ * rendering
+ * @param { number } delta time
  */
 function update(delta) {
-	// console.log("update()");
+  // console.log("update()");
 
-	stats.begin();
+  stats.begin();
 
-	stats.end();
+  stats.end();
 
-	//render the canvas
-	app.render();
+  // render the canvas
+  app.render();
 }
