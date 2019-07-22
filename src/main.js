@@ -55,17 +55,28 @@ canvas5.appendChild(app5.view);
 app5.renderer.backgroundColor = 0xff9966;
 app5.stage.interactive = true;
 
+let app6 = new PIXI.Application({
+  width: 720,
+  height: 384
+});
+let canvas6 = document.getElementById("canvas6");
+canvas6.appendChild(app6.view);
+app6.renderer.backgroundColor = 0x000000;
+app6.stage.interactive = true;
+
 let bg;
 let bg_fish, bg_fish_org;
 let bg_leaf, bg_leaf_org;
 let bg_space, bg_space_org;
 let bg_wood, bg_wood_org;
+let bg_earth, bg_earth_org;
 
 let shockwaveFilter;
 let blurFilter;
 let pixelateFilter;
 let zoomBlurFilter;
 let dotFilter;
+let asciiFilter;
 
 let elapsedTime = 0;
 let isPlaying = false;
@@ -91,6 +102,7 @@ const ASSET_FISH = "images/pic_bg_fish.jpg";
 const ASSET_LEAF = "images/pic_bg_leaf.jpg";
 const ASSET_SPACE = "images/pic_bg_space.jpg";
 const ASSET_WOOD = "images/pic_bg_wood.jpg";
+const ASSET_EARTH = "images/pic_bg_earth.jpg";
 
 PIXI.loader
   .add("bg_data", ASSET_BG)
@@ -98,6 +110,7 @@ PIXI.loader
   .add("bg_leaf", ASSET_LEAF)
   .add("bg_space", ASSET_SPACE)
   .add("bg_wood", ASSET_WOOD)
+  .add("bg_earth", ASSET_EARTH)
   .load(onAssetsLoaded);
 
 /**
@@ -269,6 +282,36 @@ function onAssetsLoaded(loader, res) {
   app5.stage.addChild(text5);
   text5.x = 305;
   text5.y = 30;
+
+   // AsciiFilter
+   bg_earth_org = new PIXI.Sprite(res.bg_earth.texture);
+   app6.stage.addChild(bg_earth_org);
+   bg_earth_org.x = 0;
+   bg_earth_org.y = 0;
+ 
+   bg_earth = new PIXI.Sprite(res.bg_earth.texture);
+   app6.stage.addChild(bg_earth);
+   bg_earth.x = 360;
+   bg_earth.y = 0;
+ 
+   asciiFilter = new PIXI.filters.AsciiFilter();
+   asciiFilter.size = 10;
+   bg_earth.filters = [asciiFilter];
+ 
+   // Text AsciiFilter
+   let text6 = new PIXI.Text("AsciiFilter", {
+     fontFamily: "Arial",
+     fontSize: 30,
+     fill: 0xffffff,
+     align: "center",
+     fontWeight: "bold",
+     dropShadow: true,
+     dropShadowColor: "#000000",
+     trim: true
+   });
+   app6.stage.addChild(text6);
+   text6.x = 300;
+   text6.y = 30;
 
   // ticker
   let ticker = PIXI.ticker.shared;
