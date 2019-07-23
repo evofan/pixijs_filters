@@ -73,13 +73,23 @@ canvas7.appendChild(app7.view);
 app7.renderer.backgroundColor = 0x000000;
 app7.stage.interactive = true;
 
+let app8 = new PIXI.Application({
+	width: 720,
+	height: 384
+});
+let canvas8 = document.getElementById("canvas8");
+canvas8.appendChild(app8.view);
+app8.renderer.backgroundColor = 0x000000;
+app8.stage.interactive = true;
+
 let bg;
 let bg_fish, bg_fish_org;
 let bg_leaf, bg_leaf_org;
 let bg_space, bg_space_org;
 let bg_wood, bg_wood_org;
 let bg_earth, bg_earth_org;
-let bg_wall, bg_Wall_org;
+let bg_wall, bg_wall_org;
+let bg_moon, bg_moon_org;
 
 let shockwaveFilter;
 let blurFilter;
@@ -88,6 +98,8 @@ let zoomBlurFilter;
 let dotFilter;
 let asciiFilter;
 let embossFilter;
+// let reflectionFilter;
+let noiseFilter;
 
 let elapsedTime = 0;
 let isPlaying = false;
@@ -115,6 +127,7 @@ const ASSET_SPACE = "images/pic_bg_space.jpg";
 const ASSET_WOOD = "images/pic_bg_wood.jpg";
 const ASSET_EARTH = "images/pic_bg_earth.jpg";
 const ASSET_WALL = "images/pic_bg_wall.jpg";
+const ASSET_MOON = "images/pic_bg_moon.jpg";
 
 PIXI.loader
 	.add("bg_data", ASSET_BG)
@@ -124,6 +137,7 @@ PIXI.loader
 	.add("bg_wood", ASSET_WOOD)
 	.add("bg_earth", ASSET_EARTH)
 	.add("bg_wall", ASSET_WALL)
+	.add("bg_moon", ASSET_MOON)
 	.load(onAssetsLoaded);
 
 /**
@@ -145,7 +159,7 @@ function onAssetsLoaded(loader, res) {
 		console.log("click"); // Desktop
 	});
 
-	// Filter //
+	// Filters //
 
 	// ShokwaveFilter
 	shockwaveFilter = new PIXI.filters.ShockwaveFilter([WIDTH / 2, HEIGHT / 2], {
@@ -338,7 +352,7 @@ function onAssetsLoaded(loader, res) {
 	bg_wall.y = 0;
 
 	embossFilter = new PIXI.filters.EmbossFilter();
-	// embossFilter.size = 10;
+	embossFilter.size = 10;
 	bg_wall.filters = [embossFilter];
 
 	// Text EmbossFilter
@@ -355,6 +369,68 @@ function onAssetsLoaded(loader, res) {
 	app7.stage.addChild(text7);
 	text7.x = 270;
 	text7.y = 30;
+
+	// ReflectionFilter * for V5 ?
+	/*
+	bg_moon_org = new PIXI.Sprite(res.bg_moon.texture);
+	app8.stage.addChild(bg_moon_org);
+	bg_moon_org.x = 0;
+	bg_moon_org.y = 0;
+
+	bg_moon = new PIXI.Sprite(res.bg_moon.texture);
+	app8.stage.addChild(bg_moon);
+	bg_moon.x = 360;
+	bg_moon.y = 0;
+
+	reflectionFilter = new PIXI.filters.ReflectionFilter();
+	bg_moon.filters = [reflectionFilter];
+
+	// Text ReflectionFilter
+	let text8 = new PIXI.Text("ReflectionFilter", {
+		fontFamily: "Arial",
+		fontSize: 30,
+		fill: 0xffffff,
+		align: "center",
+		fontWeight: "bold",
+		dropShadow: true,
+		dropShadowColor: "#000000",
+		trim: true
+	});
+	app8.stage.addChild(text8);
+	text8.x = 270;
+	text8.y = 30;
+	*/
+
+	// NoiseFilter
+	bg_moon_org = new PIXI.Sprite(res.bg_moon.texture);
+	app8.stage.addChild(bg_moon_org);
+	bg_moon_org.x = 0;
+	bg_moon_org.y = 0;
+
+	bg_moon = new PIXI.Sprite(res.bg_moon.texture);
+	app8.stage.addChild(bg_moon);
+	bg_moon.x = 360;
+	bg_moon.y = 0;
+
+	noiseFilter = new PIXI.filters.NoiseFilter();
+	bg_moon.filters = [noiseFilter];
+
+	// Text NoiseFilter
+	let text8 = new PIXI.Text("NoiseFilter", {
+		fontFamily: "Arial",
+		fontSize: 30,
+		fill: 0xffffff,
+		align: "center",
+		fontWeight: "bold",
+		dropShadow: true,
+		dropShadowColor: "#000000",
+		trim: true
+	});
+	app8.stage.addChild(text8);
+	text8.x = 280;
+	text8.y = 30;
+
+
 
 	// ticker
 	let ticker = PIXI.ticker.shared;
