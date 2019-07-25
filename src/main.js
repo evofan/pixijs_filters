@@ -91,6 +91,15 @@ canvas9.appendChild(app9.view);
 app9.renderer.backgroundColor = 0x000000;
 app9.stage.interactive = true;
 
+let app10 = new PIXI.Application({
+  width: 720,
+  height: 384
+});
+let canvas10 = document.getElementById("canvas10");
+canvas10.appendChild(app10.view);
+app10.renderer.backgroundColor = 0x000000;
+app10.stage.interactive = true;
+
 let bg;
 let bg_fish, bg_fish_org;
 let bg_leaf, bg_leaf_org;
@@ -100,6 +109,8 @@ let bg_earth, bg_earth_org;
 let bg_wall, bg_wall_org;
 let bg_moon, bg_moon_org;
 let bg_skelton, bg_skelton_org;
+let bg_skelton2, bg_skelton_org2;
+// let bg_cloud, bg_cloud_org;
 
 let shockwaveFilter;
 let blurFilter;
@@ -108,9 +119,9 @@ let zoomBlurFilter;
 let dotFilter;
 let asciiFilter;
 let embossFilter;
-// let reflectionFilter;
 let noiseFilter;
 let rgbSplitFilter;
+let crossHatchFilter;
 
 let elapsedTime = 0;
 let isPlaying = false;
@@ -140,6 +151,7 @@ const ASSET_EARTH = "images/pic_bg_earth.jpg";
 const ASSET_WALL = "images/pic_bg_wall.jpg";
 const ASSET_MOON = "images/pic_bg_moon.jpg";
 const ASSET_SKELTON = "images/pic_bg_skelton.jpg";
+// const ASSET_CLOUD = "images/pic_bg_cloud.jpg";
 
 PIXI.loader
   .add("bg_data", ASSET_BG)
@@ -151,6 +163,7 @@ PIXI.loader
   .add("bg_wall", ASSET_WALL)
   .add("bg_moon", ASSET_MOON)
   .add("bg_skelton", ASSET_SKELTON)
+  // .add("bg_cloud", ASSET_CLOUD)
   .load(onAssetsLoaded);
 
 /**
@@ -440,6 +453,35 @@ function onAssetsLoaded(loader, res) {
   app9.stage.addChild(text9);
   text9.x = 260;
   text9.y = 30;
+
+  // CrossHatchFilter
+  bg_skelton_org2 = new PIXI.Sprite(res.bg_skelton.texture);
+  app10.stage.addChild(bg_skelton_org2);
+  bg_skelton_org2.x = 0;
+  bg_skelton_org2.y = 0;
+
+  bg_skelton2 = new PIXI.Sprite(res.bg_skelton.texture);
+  app10.stage.addChild(bg_skelton2);
+  bg_skelton2.x = 360;
+  bg_skelton2.y = 0;
+
+  crossHatchFilter = new PIXI.filters.CrossHatchFilter();
+  bg_skelton2.filters = [crossHatchFilter];
+
+  // Text CrossHatchFilter
+  let text10 = new PIXI.Text("CrossHatchFilter", {
+    fontFamily: "Arial",
+    fontSize: 30,
+    fill: 0xffffff,
+    align: "center",
+    fontWeight: "bold",
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    trim: true
+  });
+  app10.stage.addChild(text10);
+  text10.x = 240;
+  text10.y = 30;
 
   // ticker
   let ticker = PIXI.ticker.shared;
